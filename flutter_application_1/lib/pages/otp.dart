@@ -20,17 +20,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   Future<void> verifyOtp(String otp) async {
     setState(() => isLoading = true);
 
-    // Bypass actual API if test OTP is entered
-    // if (otp == "1234") {
-    //   await Future.delayed(Duration(seconds: 1));
-    //   setState(() => isLoading = false);
-
-    //   const dummyToken = "test-token-123";
-    //   context.go('/location', extra: dummyToken);
-    //   return;
-    // }
-
-    // 🔁 Proceed with real API call otherwise
+    //  Proceed with real API call 
     final response = await http.post(
       Uri.parse('https://yourapi.com/api/auth/verify-otp'),
       headers: {'Content-Type': 'application/json'},
@@ -53,7 +43,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   void resendOtp() {
-    // You can call your resend OTP API here
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('OTP resent to ${widget.phone}')));
@@ -147,6 +136,34 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Bypass actual API if test OTP is entered
+    // if (otp == "1234") {
+    //   await Future.delayed(Duration(seconds: 1));
+    //   setState(() => isLoading = false);
+
+    //   const dummyToken = "test-token-123";
+    //   context.go('/location', extra: dummyToken);
+    //   return;
+    // }
 
 
 

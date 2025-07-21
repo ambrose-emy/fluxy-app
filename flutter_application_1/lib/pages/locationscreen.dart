@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:geolocator/geolocator.dart';
 
 class LocationScreen extends StatefulWidget {
   final String? token;
@@ -12,19 +13,53 @@ class LocationScreen extends StatefulWidget {
 
 class _LocationScreenState extends State<LocationScreen> {
   late GoogleMapController mapController;
-
-  final LatLng _center = const LatLng(6.5244, 3.3792); // Lagos example
-
-  void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
-  }
+  LatLng? _currentPosition;
 
   @override
   void initState() {
     super.initState();
+    _setCurrentLocation();
+  }
 
-    // Log the token to debug console (optional)
-    // print('Received token: ${widget.token}');
+  Future<void> _setCurrentLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      return;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) return;
+    }
+
+    if (permission == LocationPermission.deniedForever) return;
+
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    setState(() {
+      _currentPosition = LatLng(position.latitude, position.longitude);
+    });
+
+    mapController.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(target: _currentPosition!, zoom: 15.0),
+      ),
+    );
+  }
+
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+    if (_currentPosition != null) {
+      mapController.moveCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(target: _currentPosition!, zoom: 15.0),
+        ),
+      );
+    }
   }
 
   @override
@@ -39,15 +74,6 @@ class _LocationScreenState extends State<LocationScreen> {
                 'Choose Your Location',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-
-              // const SizedBox(height: 8),
-
-              // // 🔍 Optional: show token for testing
-              // if (widget.token != null)
-              //   Text(
-              //     "Token: ${widget.token}",
-              //     style: const TextStyle(color: Colors.green),
-              //   ),
               const SizedBox(height: 12),
               TextField(
                 decoration: InputDecoration(
@@ -66,32 +92,32 @@ class _LocationScreenState extends State<LocationScreen> {
                 borderRadius: BorderRadius.circular(16),
                 child: SizedBox(
                   height: 200,
-                  child: GoogleMap(
-                    onMapCreated: _onMapCreated,
-                    initialCameraPosition: CameraPosition(
-                      target: _center,
-                      zoom: 13.0,
-                    ),
-                    markers: {
-                      Marker(markerId: const MarkerId('m1'), position: _center),
-                    },
-                  ),
+                  child:
+                      _currentPosition == null
+                          ? const Center(child: CircularProgressIndicator())
+                          : GoogleMap(
+                            onMapCreated: _onMapCreated,
+                            initialCameraPosition: CameraPosition(
+                              target: _currentPosition!,
+                              zoom: 15.0,
+                            ),
+                            markers: {
+                              Marker(
+                                markerId: const MarkerId('current'),
+                                position: _currentPosition!,
+                              ),
+                            },
+                          ),
                 ),
               ),
               const SizedBox(height: 16),
               GestureDetector(
-                onTap: () {
-                  // handle current location
-                },
+                onTap: _setCurrentLocation,
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.purple,
-                      width: 2,
-                      style: BorderStyle.solid,
-                    ),
+                    border: Border.all(color: Colors.purple, width: 2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Row(
@@ -110,13 +136,8 @@ class _LocationScreenState extends State<LocationScreen> {
               const Spacer(),
               ElevatedButton(
                 onPressed: () {
-                  // Navigate to next screen if needed
-                  context.go('/nextScreen'); // Replace with your actual route
+                  context.go('/nextScreen'); // Update with your actual route
                 },
-                // onPressed: () {
-                //   // Continue logic, e.g., navigate or use token
-                //   print("Continuing with token: ${widget.token}");
-                // },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.purple,
                   padding: const EdgeInsets.symmetric(vertical: 16),

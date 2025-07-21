@@ -32,7 +32,6 @@ final GoRouter _router = GoRouter(
       builder: (context, state) {
         final token = state.extra as String?;
         return LocationScreen(token: token);
-        //builder: (context, state) => LocationScreen()
       },
     ),
   ],
