@@ -7,10 +7,10 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 class OtpVerificationScreen extends StatefulWidget {
   final String phone;
 
-  OtpVerificationScreen({required this.phone});
-
+  // Add the Key? key parameter and mark constructor const
+  const OtpVerificationScreen({super.key, required this.phone});
   @override
-  _OtpVerificationScreenState createState() => _OtpVerificationScreenState();
+  State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
 }
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
@@ -20,7 +20,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   Future<void> verifyOtp(String otp) async {
     setState(() => isLoading = true);
 
-    //  Proceed with real API call 
+    // Proceed with real API call
     final response = await http.post(
       Uri.parse('https://yourapi.com/api/auth/verify-otp'),
       headers: {'Content-Type': 'application/json'},
@@ -38,7 +38,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     } else {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Invalid OTP')));
+      ).showSnackBar(const SnackBar(content: Text('Invalid OTP')));
     }
   }
 
@@ -58,8 +58,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset('assets/otp_image.png', height: 180),
-            SizedBox(height: 24),
-            Text(
+            const SizedBox(height: 24),
+            const Text(
               'Almost There!',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
@@ -68,7 +68,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[700]),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             PinCodeTextField(
               appContext: context,
               length: 4,
@@ -90,14 +90,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 });
               },
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Didn't get code? "),
+                const Text("Didn't get code? "),
                 GestureDetector(
                   onTap: resendOtp,
-                  child: Text(
+                  child: const Text(
                     'Resend otp',
                     style: TextStyle(
                       color: Colors.blue,
@@ -107,7 +107,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -124,7 +124,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         : () => verifyOtp(otpCode),
                 child: Text(
                   isLoading ? "Verifying..." : "Verify",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
+                  style: const TextStyle(fontSize: 16, color: Colors.white),
                 ),
               ),
             ),
@@ -134,7 +134,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     );
   }
 }
-
 
 
 
